@@ -1,0 +1,30 @@
+﻿bin/
+obj/
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.worktrees/
+.codex/
+/Library/cubit-content/
+
+# 文档、会话和项目缓存留在工作区外部，不属于引擎源码仓库。
+docs/
+.cubit/
+.cubit-probes/
+
+# 本机构建/诊断输出与依赖缓存均可再生。
+.nuget/
+.nuget-packages/
+artifacts/
+*.tmp
+*.tmp-*
+*.log
+*.binlog
+*.cache
+TestResults/
+Thumbs.db
+Desktop.ini

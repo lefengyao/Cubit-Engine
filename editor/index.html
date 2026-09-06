@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Cubit 引擎结构编辑器</title>
+<style>
+  :root { --bg:#0f1419; --panel:#171e26; --panel2:#1d2731; --line:#2a3644; --text:#d7e1ea; --dim:#8ba0b4; --accent:#4cc2ff; --ok:#3ddc84; --warn:#ffc44d; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font:13px/1.5 "Microsoft YaHei",system-ui,sans-serif; display:flex; flex-direction:column; height:100vh; }
+  header { display:flex; gap:8px; align-items:center; padding:8px 12px; background:var(--panel); border-bottom:1px solid var(--line); flex-wrap:wrap; }
+  header .title { font-weight:700; margin-right:8px; }
+  .dot { width:10px; height:10px; border-radius:50%; background:#555; display:inline-block; margin-right:4px; }
+  .dot.on { background:var(--ok); }
+  .dot.off { background:var(--warn); }
+  input, select, button { background:var(--panel2); color:var(--text); border:1px solid var(--line); border-radius:4px; padding:4px 8px; font:inherit; }
+  button { cursor:pointer; }
+  button:hover { border-color:var(--accent); }
+  button.primary { background:#1d5c7a; border-color:#2b7ba3; }
+  main { flex:1; display:grid; grid-template-columns:340px 1fr 380px; min-height:0; }
+  section { display:flex; flex-direction:column; min-height:0; border-right:1px solid var(--line); background:var(--panel); }
+  section h2 { font-size:12px; color:var(--dim); padding:6px 10px; border-bottom:1px solid var(--line); text-transform:uppercase; letter-spacing:.5px; }
+  .scroll { overflow:auto; flex:1; padding:8px; }
+  .card { background:var(--panel2); border:1px solid var(--line); border-radius:6px; padding:8px 10px; margin-bottom:8px; }
+  .card h3 { font-size:13px; color:var(--accent); }
+  .card .type { color:var(--dim); font-size:11px; font-family:Consolas,monospace; }
+  .kv { display:grid; grid-template-columns:auto 1fr; gap:2px 10px; margin-top:4px; }
+  .kv .k { color:var(--dim); }
+  .kv .v { font-family:Consolas,monospace; word-break:break-all; }
+  .tree { font-family:Consolas,monospace; font-size:12.5px; }
+  .tree .node { cursor:pointer; padding:1px 4px; border-radius:3px; white-space:nowrap; }
+  .tree .node:hover { background:var(--panel2); }
+  .tree .node.sel { background:#1d5c7a; color:#fff; }
+  .tree .children { margin-left:16px; border-left:1px dashed var(--line); padding-left:6px; }
+  .prop { display:grid; grid-template-columns:130px 1fr auto; gap:6px; align-items:center; padding:4px 0; border-bottom:1px solid var(--line); }
+  .prop .pn { color:var(--text); font-family:Consolas,monospace; font-size:12px; }
+  .prop .pt { color:var(--dim); font-size:10px; }
+  .prop input { width:100%; }
+  .prop .exp { color:var(--accent); font-size:10px; }
+  .console { height:180px; border-top:1px solid var(--line); background:#0b0f14; font-family:Consolas,monospace; font-size:11.5px; overflow:auto; padding:6px 10px; }
+  .console .row { color:var(--dim); white-space:pre-wrap; word-break:break-all; }
+  .console .row.in { color:var(--accent); }
+  .console .row.out { color:var(--text); }
+  .console .row.err { color:#ff7b72; }
+  .tool-item { padding:5px 8px; border-bottom:1px solid var(--line); cursor:default; }
+  .tool-item .tn { color:var(--accent); font-family:Consolas,monospace; }
+  .tool-item .td { color:var(--dim); font-size:11px; }
+  #centerPanel { background:var(--bg); }
+  #statusLine { padding:10px; }
+  #statusLine .card { margin-bottom:6px; }
+  .actions { display:flex; gap:6px; flex-wrap:wrap; margin:8px 10px; }
+</style>
+</head>
+<body>
+<header>
+  <span class="title">Cubit 引擎结构编辑器</span>
+  <span id="connDot" class="dot off"></span><span id="connText">未连接</span>
+  <input id="apiUrl" value="http://127.0.0.1:8765/mcp" size="28">
+  <button onclick="connect()">连接</button>
+  <button onclick="refreshAll()" class="primary">刷新</button>
+  <span style="flex:1"></span>
+  <button onclick="doPause()">暂停/继续</button>
+  <button onclick="doStep()">单步 tick</button>
+  <button onclick="doScreenshot()">截图</button>
+  <button onclick="doReset()">重置场景</button>
+</header>
+<main>
+  <section id="leftPanel">
+    <h2>引擎结构 · 服务层</h2>
+    <div class="scroll" id="servicesBox"></div>
+    <h2>场景树（点击查看属性）</h2>
+    <div class="scroll" id="treeBox"></div>
+    <h2>MCP 工具（29+）</h2>
+    <div class="scroll" id="toolsBox"></div>
+  </section>
+  <section id="centerPanel">
+    <h2>运行状态</h2>
+    <div class="actions">
+      <label>速度(Hz) <input id="speedInput" type="number" value="20" min="1" max="240" style="width:64px"></label>
+      <button onclick="doSpeed()">设置</button>
+      <label>保存路径 <input id="savePath" value="C:/Users/15610/mc-26.1.2/Cubit/editor/scene.cscene" size="36"></label>
+      <button onclick="doSave()">保存场景</button>
+      <label>加载路径 <input id="loadPath" value="C:/Users/15610/mc-26.1.2/Cubit/editor/scene.cscene" size="36"></label>
+      <label><input type="checkbox" id="applyLoad" checked> 替换运行树</label>
+      <button onclick="doLoad()">加载</button>
+    </div>
+    <div class="scroll" id="statusBox"></div>
+  </section>
+  <section id="rightPanel">
+    <h2>属性面板</h2>
+    <div class="scroll" id="propsBox"><div class="card">点击左侧场景树节点查看属性。</div></div>
+  </section>
+</main>
+<div class="console" id="console"></div>
+
+<script>
+"use strict";
+let apiUrl = "http://127.0.0.1:8765/mcp";
+let seq = 0;
+let selectedPath = "/Root";
+
+function $(id) { return document.getElementById(id); }
+
+function log(kind, msg) {
+  const box = $("console");
+  const row = document.createElement("div");
+  row.className = "row " + kind;
+  row.textContent = "[" + new Date().toLocaleTimeString() + "] " + msg;
+  box.appendChild(row);
+  while (box.children.length > 500) box.removeChild(box.firstChild);
+  box.scrollTop = box.scrollHeight;
+}
+
+async function callTool(name, args = {}) {
+  const id = ++seq;
+  log("in", name + " " + JSON.stringify(args));
+  const resp = await fetch(apiUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ jsonrpc: "2.0", id, method: "tools/call", params: { name, arguments: args } }),
+  });
+  const data = await resp.json();
+  if (data.error) {
+    const msg = data.error.message || JSON.stringify(data.error);
+    log("err", name + " → " + msg);
+    throw new Error(msg);
+  }
+  const text = data?.result?.content?.[0]?.text ?? "";
+  log("out", name + " → " + text.slice(0, 240));
+  return text;
+}
+
+function tryJson(text) { try { return JSON.parse(text); } catch { return text; } }
+
+function kv(obj, prefix) {
+  if (!obj || typeof obj !== "object") return "";
+  let h = '<div class="kv">';
+  for (const k of Object.keys(obj)) {
+    const v = obj[k];
+    const label = prefix ? prefix + "." + k : k;
+    if (v && typeof v === "object" && !Array.isArray(v)) { h += kv(v, label); }
+    else { h += '<span class="k">' + label + '</span><span class="v">' + esc(JSON.stringify(v)) + "</span>"; }
+  }
+  return h + "</div>";
+}
+function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+async function connect() {
+  apiUrl = $("apiUrl").value.trim() || apiUrl;
+  try {
+    await callTool("engine.info", {});
+    $("connDot").className = "dot on";
+    $("connText").textContent = "已连接";
+    await refreshAll();
+  } catch (e) {
+    $("connDot").className = "dot off";
+    $("connText").textContent = "连接失败";
+    log("err", e.message);
+  }
+}
+
+async function refreshAll() {
+  await Promise.all([loadEngine(), loadTree(), loadStatus(), loadTools()]);
+}
+
+async function loadEngine() {
+  const text = await callTool("engine.info", {});
+  const info = tryJson(text);
+  if (typeof info !== "object") { $("servicesBox").innerHTML = "<div class='card'>" + esc(text) + "</div>"; return; }
+  let h = '<div class="card"><h3>' + esc(info.engine || "Cubit") + '</h3><div class="type">' + esc(info.framework || "") + "</div></div>";
+  for (const s of (info.services || [])) {
+    h += '<div class="card"><h3>' + esc(s.name) + '</h3><div class="type">' + esc(s.type || "") + "</div>" + kv(s.state) + "</div>";
+  }
+  $("servicesBox").innerHTML = h;
+}
+
+async function loadTree() {
+  const text = await callTool("scene.get_tree", {});
+  const root = tryJson(text);
+  $("treeBox").innerHTML = renderNode(root);
+  bindTree();
+}
+
+function renderNode(n) {
+  let h = '<div class="node" data-path="' + esc(n.path || "/") + '">' + esc(n.name || n.path) + ' <span style="color:var(--dim)">(' + esc(n.type) + ")</span></div>";
+  if (n.children && n.children.length) {
+    h += '<div class="children">' + n.children.map(renderNode).join("") + "</div>";
+  }
+  return h;
+}
+
+function bindTree() {
+  document.querySelectorAll("#treeBox .node").forEach(el => {
+    el.onclick = async () => {
+      document.querySelectorAll("#treeBox .node").forEach(x => x.classList.remove("sel"));
+      el.classList.add("sel");
+      selectedPath = el.dataset.path;
+      await loadProps(selectedPath);
+    };
+  });
+}
+
+async function loadProps(path) {
+  $("propsBox").innerHTML = '<div class="card">加载中…</div>';
+  try {
+    const text = await callTool("scene.list_properties", { nodePath: path });
+    const props = tryJson(text);
+    if (!Array.isArray(props)) { $("propsBox").innerHTML = "<div class='card'>" + esc(text) + "</div>"; return; }
+    let h = '<div class="card"><h3>' + esc(path) + "</h3></div>";
+    for (const p of props) {
+      const val = p.value === null || p.value === undefined ? "" : JSON.stringify(p.value);
+      h += '<div class="prop"><div><div class="pn">' + esc(p.name) + (p.exported ? ' <span class="exp">[Export]</span>' : "") + '</div><div class="pt">' + esc(p.type) + "</div></div>" +
+           '<input data-prop="' + esc(p.name) + '" data-path="' + esc(path) + '" value="' + esc(val) + '">' +
+           '<button onclick="setProp(this)">设置</button></div>';
+    }
+    $("propsBox").innerHTML = h;
+  } catch (e) {
+    $("propsBox").innerHTML = "<div class='card'>" + esc(e.message) + "</div>";
+  }
+}
+
+async function setProp(btn) {
+  const input = btn.previousElementSibling;
+  const prop = input.dataset.prop;
+  const path = input.dataset.path;
+  const raw = input.value.trim();
+  let json;
+  try { json = JSON.parse(raw); } catch { json = raw; }
+  const out = await callTool("scene.set_property", { nodePath: path, property: prop, value: JSON.stringify(json) });
+  log("out", "set_property → " + out);
+  await loadProps(path);
+  await loadTree();
+}
+
+async function loadStatus() {
+  const text = await callTool("run.status", {});
+  const st = tryJson(text);
+  if (typeof st !== "object") { $("statusBox").innerHTML = "<div class='card'>" + esc(text) + "</div>"; return; }
+  let h = '<div class="card"><h3>运行状态</h3>' + kv(st) + "</div>";
+  const stats = await callTool("capture.stats", {}).catch(() => null);
+  if (stats) { const s = tryJson(stats); if (typeof s === "object") h += '<div class="card"><h3>渲染/世界统计</h3>' + kv(s) + "</div>"; }
+  $("statusBox").innerHTML = h;
+}
+
+async function loadTools() {
+  const resp = await fetch(apiUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ jsonrpc: "2.0", id: ++seq, method: "tools/list", params: {} }),
+  });
+  const data = await resp.json();
+  const tools = data?.result?.tools || [];
+  $("toolsBox").innerHTML = tools.map(t =>
+    '<div class="tool-item"><div class="tn">' + esc(t.name) + '</div><div class="td">' + esc(t.description || "") + "</div></div>"
+  ).join("");
+}
+
+async function doPause() {
+  const out = await callTool("run.pause", { paused: true });
+  log("out", "pause → " + out);
+  await loadStatus();
+}
+async function doStep() { await callTool("run.tick_step", {}); await loadStatus(); }
+async function doSpeed() {
+  const rate = parseFloat($("speedInput").value) || 20;
+  await callTool("run.set_speed", { rate });
+  await loadStatus();
+}
+async function doScreenshot() {
+  const out = await callTool("capture.screenshot", { path: "" });
+  log("out", "截图 → " + out);
+  $("connText").textContent = out;
+}
+async function doReset() { await callTool("scene.reset", {}); await refreshAll(); }
+async function doSave() { const out = await callTool("scene.save", { path: $("savePath").value }); log("out", out); }
+async function doLoad() {
+  const out = await callTool("scene.load", { path: $("loadPath").value, apply: $("applyLoad").checked });
+  log("out", "load → " + out.slice(0, 300));
+  await refreshAll();
+}
+
+connect();
+</script>
+</body>
+</html>

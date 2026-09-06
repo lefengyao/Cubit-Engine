@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0-android</TargetFramework>
+    <SupportedOSPlatformVersion>24</SupportedOSPlatformVersion>
+    <OutputType>Exe</OutputType>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ApplicationId>com.cubit.sample</ApplicationId>
+    <ApplicationVersion>1</ApplicationVersion>
+    <ApplicationDisplayVersion>0.1.0</ApplicationDisplayVersion>
+    <RuntimeIdentifier>android-arm64</RuntimeIdentifier>
+    <AndroidPackageFormat>apk</AndroidPackageFormat>
+    <!-- 16 KB SDL 修订包只从项目受控目录恢复，禁止依赖全局 NuGet 状态。 -->
+    <RestoreAdditionalProjectSources>$(MSBuildProjectDirectory)\NativePackages</RestoreAdditionalProjectSources>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Cubit.Core\Cubit.Core.csproj" />
+    <ProjectReference Include="..\..\src\Cubit.Audio\Cubit.Audio.csproj" />
+    <ProjectReference Include="..\..\src\Cubit.Audio.Android\Cubit.Audio.Android.csproj" />
+    <ProjectReference Include="..\..\..\我的第一个cubit项目\src\MyFirstCubitProject.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- AudioClip 的 OGG 导入是公共 API；AOT 链接器不得因当前示例未调用而裁剪其解码器。 -->
+    <TrimmerRootAssembly Include="NVorbis" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- 共享的是纯平台会话；项目代码以独立程序集由两端静态引用。 -->
+    <Compile Include="..\Cubit.Sample\AudioSmokeSignal.cs" Link="Game\AudioSmokeSignal.cs" />
+    <Compile Include="..\Cubit.Sample\GameScene.cs" Link="Game\GameScene.cs" />
+    <!-- Android 运行时把项目清单与主场景作为只读资源打包，启动时解包到应用缓存目录。 -->
+    <AndroidAsset Include="..\..\..\我的第一个cubit项目\project.cubit.json" Link="project.cubit.json" />
+    <AndroidAsset Include="..\..\..\我的第一个cubit项目\scenes\*.cscene" Link="scenes\%(Filename)%(Extension)" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="NVorbis" Version="0.10.5" />
+    <PackageReference Include="Silk.NET.Input" Version="2.23.0" />
+    <!-- 本地修订包使 SDL Java/native 均为 2.32.10，并保留经审计的 16 KB 原生库。 -->
+    <PackageReference Include="Silk.NET.Windowing.Sdl" Version="2.23.1-cubit.3" />
+    <PackageReference Include="Silk.NET.SDL" Version="2.23.0" />
+    <PackageReference Include="Silk.NET.Vulkan" Version="2.23.0" />
+    <PackageReference Include="Silk.NET.Vulkan.Extensions.ANDROID" Version="2.23.0" />
+    <PackageReference Include="Silk.NET.Windowing.Common" Version="2.23.0" />
+    <!-- Silk.NET.SDL 的传递包只提供桌面/iOS 原生资产；Android 使用 Windowing.Sdl AAR。 -->
+    <PackageReference Include="Ultz.Native.SDL" Version="2.32.10" ExcludeAssets="all" />
+  </ItemGroup>
+</Project>

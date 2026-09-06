@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Hexa.NET.ImGui" Version="2.2.9" />
+    <PackageReference Include="Silk.NET.Shaderc" Version="2.23.0" />
+    <ProjectReference Include="..\..\src\Cubit.Core\Cubit.Core.csproj" />
+    <ProjectReference Include="..\..\src\Cubit.ImGui\Cubit.ImGui.csproj" />
+    <ProjectReference Include="..\..\src\Cubit.Physics\Cubit.Physics.csproj" />
+    <ProjectReference Include="..\..\src\Cubit.Animation\Cubit.Animation.csproj" />
+    <ProjectReference Include="..\..\src\Cubit.Audio\Cubit.Audio.csproj" />
+    <ProjectReference Include="..\..\src\Cubit.Audio.Windows\Cubit.Audio.Windows.csproj" />
+    <ProjectReference Include="..\..\src\Cubit.Audio.Android\Cubit.Audio.Android.csproj" />
+    <ProjectReference Include="..\..\src\Cubit.Scripting\Cubit.Scripting.csproj" />
+    <ProjectReference Include="..\..\src\Cubit.Content\Cubit.Content.csproj" />
+    <ProjectReference Include="..\..\src\Cubit.Voxel\Cubit.Voxel.csproj" />
+    <ProjectReference Include="..\..\hosts\Cubit.Sample\Cubit.Sample.csproj" />
+    <ProjectReference Include="..\..\..\我的第一个cubit项目\src\MyFirstCubitProject.csproj" />
+    <ProjectReference Include="..\..\..\我的第一个cubit项目\src\MyFirstCubitProject.Desktop\MyFirstCubitProject.Desktop.csproj" />
+    <ProjectReference Include="..\..\src\Cubit.Mcp\Cubit.Mcp.csproj" />
+    <ProjectReference Include="..\..\src\Cubit.Mcp.Physics\Cubit.Mcp.Physics.csproj" />
+    <ProjectReference Include="..\..\src\Cubit.Mcp.Animation\Cubit.Mcp.Animation.csproj" />
+    <ProjectReference Include="..\..\src\Cubit.Mcp.Ecs\Cubit.Mcp.Ecs.csproj" />
+    <ProjectReference Include="..\..\src\Cubit.Mcp.Content\Cubit.Mcp.Content.csproj" />
+    <ProjectReference Include="..\..\src\Cubit.Mcp.Scripting\Cubit.Mcp.Scripting.csproj" />
+    <ProjectReference Include="..\..\src\Cubit.Mcp.Voxel\Cubit.Mcp.Voxel.csproj" />
+    <ProjectReference Include="..\..\src\Cubit.Mcp.OfficialModules\Cubit.Mcp.OfficialModules.csproj" />
+    <ProjectReference Include="..\..\src\Cubit.Editor\Cubit.Editor.csproj" />
+    <ProjectReference Include="..\..\src\Cubit.Editor.Contracts\Cubit.Editor.Contracts.csproj" />
+  </ItemGroup>
+</Project>
+

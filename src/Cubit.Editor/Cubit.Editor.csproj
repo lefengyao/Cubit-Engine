@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Hexa.NET.ImGui" Version="2.2.9" />
+    <PackageReference Include="Silk.NET.Input" Version="2.23.0" />
+    <PackageReference Include="Silk.NET.Maths" Version="2.23.0" />
+    <PackageReference Include="Silk.NET.Windowing" Version="2.23.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Cubit.ImGui\Cubit.ImGui.csproj" />
+    <ProjectReference Include="..\Cubit.Editor.Contracts\Cubit.Editor.Contracts.csproj" />
+    <ProjectReference Include="..\Cubit.Core\Cubit.Core.csproj" />
+    <ProjectReference Include="..\Cubit.Physics\Cubit.Physics.csproj" />
+    <ProjectReference Include="..\Cubit.Animation\Cubit.Animation.csproj" />
+    <ProjectReference Include="..\Cubit.Voxel\Cubit.Voxel.csproj" />
+    <ProjectReference Include="..\Cubit.Audio\Cubit.Audio.csproj" />
+    <ProjectReference Include="..\Cubit.Content\Cubit.Content.csproj" />
+    <ProjectReference Include="..\Cubit.Scripting\Cubit.Scripting.csproj" />
+    <ProjectReference Include="..\Cubit.Mcp\Cubit.Mcp.csproj" />
+    <ProjectReference Include="..\Cubit.Mcp.Physics\Cubit.Mcp.Physics.csproj" />
+    <ProjectReference Include="..\Cubit.Mcp.Animation\Cubit.Mcp.Animation.csproj" />
+    <ProjectReference Include="..\Cubit.Mcp.Voxel\Cubit.Mcp.Voxel.csproj" />
+    <ProjectReference Include="..\Cubit.Mcp.Audio\Cubit.Mcp.Audio.csproj" />
+    <ProjectReference Include="..\Cubit.Mcp.Content\Cubit.Mcp.Content.csproj" />
+    <ProjectReference Include="..\Cubit.Mcp.Scripting\Cubit.Mcp.Scripting.csproj" />
+    <ProjectReference Include="..\Cubit.Mcp.Ecs\Cubit.Mcp.Ecs.csproj" />
+  </ItemGroup>
+
+</Project>

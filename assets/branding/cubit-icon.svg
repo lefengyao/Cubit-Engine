@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">Cubit engine icon</title>
+  <desc id="desc">A three-faced isometric cube.</desc>
+  <path fill="#2DD4BF" d="M128 24 224 78 128 134 32 78Z"/>
+  <path fill="#0F766E" d="M32 78 128 134V232L32 178Z"/>
+  <path fill="#2563EB" d="M224 78 128 134V232L224 178Z"/>
+  <path fill="#FFFFFF" fill-opacity=".92" d="m128 47 55 31-55 32-55-32Zm0 15-29 16 29 17 29-17Z"/>
+</svg>

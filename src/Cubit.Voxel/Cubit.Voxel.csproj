@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Cubit.Core\Cubit.Core.csproj" />
+    <ProjectReference Include="..\Cubit.Physics\Cubit.Physics.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="StbImageSharp" Version="2.30.15" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Textures\*.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Cubit.Tool" />
+  </ItemGroup>
+</Project>
